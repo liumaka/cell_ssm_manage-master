@@ -1,0 +1,79 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qfedu.demo.mapper.PetMapper">
+    <resultMap id="PetMap" type="Pet">
+        <id column="id" property="id"/>
+        <result column="picture" property="picture"/>
+        <result column="oid" property="oid"/>
+        <result column="color" property="color"/>
+        <result column="name" property="name"/>
+        <result column="remark" property="remark"/>
+        <result column="adoptTime" property="adoptTime"/>
+        <association property="owner" javaType="Owner">
+            <id column="id" property="id"/>
+            <result column="oname" property="oname"/>
+        </association>
+    </resultMap>
+    <insert id="insertPet">
+        insert into db_pet (oid,picture,color,name,remark,adoptTime) values (#{oid},#{picture},#{color},#{name},#{remark},#{adoptTime});
+    </insert>
+    <update id="updatePet">
+        update db_pet
+        <trim prefix="set" suffixOverrides=",">
+            <if test="oid!=null and oid != ''">oid=#{oid},</if>
+            <if test="picture!=null and picture != ''">picture=#{picture},</if>
+            <if test="color!=null and color != ''">color=#{color},</if>
+            <if test="name!=null and name != ''">name=#{name},</if>
+            <if test="adoptTime!=null and adoptTime != ''">adoptTime=#{adoptTime},</if>
+            <if test="remark!=null and remark != ''">remark=#{remark},</if>
+        </trim>
+        where id = #{id}
+    </update>
+    <delete id="deletePetById">
+        delete from db_pet where id = #{id}
+    </delete>
+    <delete id="deletePetByIds">
+         DELETE FROM db_pet where id in (${ids})
+    </delete>
+    <select id="query" resultMap="PetMap">
+        SELECT o.oname,p.* FROM db_pet p INNER JOIN db_owner o ON p.oid=o.id
+        <trim prefix="where" prefixOverrides="and||or">
+            <if test="name != null and name != ''">
+                and p.name LIKE CONCAT(CONCAT('%',#{name},'%'))
+            </if>
+            <if test="startTime != null and startTime != ''">
+                and p.adoptTime &gt;= #{startTime}
+            </if>
+            <if test="endTime != null and endTime != ''">
+                and p.adoptTime &lt;= #{endTime}
+            </if>
+        </trim>
+    </select>
+    <select id="queryCount" resultType="java.lang.Long">
+        SELECT COUNT(*) FROM db_pet p INNER JOIN db_owner o ON p.oid=o.id
+        <trim prefix="where" prefixOverrides="and||or">
+            <if test="name != null and name != ''">
+                and p.name LIKE CONCAT(CONCAT('%',#{name},'%'))
+            </if>
+            <if test="startTime != null and startTime != ''">
+                and p.adoptTime &gt;= #{startTime}
+            </if>
+            <if test="endTime != null and endTime != ''">
+                and p.adoptTime &lt;= #{endTime}
+            </if>
+        </trim>
+    </select>
+    <select id="queryOwnerInfo" resultType="com.qfedu.demo.entity.Owner">
+        SELECT id,oname FROM db_owner
+        <where>
+            <if test="cid != null and cid != ''">
+                id=#{oid}
+            </if>
+        </where>
+    </select>
+
+    <select id="queryById" resultType="com.qfedu.demo.entity.Pet">
+        select * from db_pet where id=#{id}
+    </select>
+</mapper>

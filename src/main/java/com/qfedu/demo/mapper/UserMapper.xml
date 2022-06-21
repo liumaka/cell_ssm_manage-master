@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qfedu.demo.mapper.UserMapper">
+
+    <resultMap type="com.qfedu.demo.entity.User" id="SysUserMap">
+        <result property="id" column="id" jdbcType="INTEGER"/>
+        <result property="username" column="username" jdbcType="VARCHAR"/>
+        <result property="realname" column="realname" jdbcType="VARCHAR"/>
+        <result property="password" column="password" jdbcType="VARCHAR"/>
+        <result property="phone" column="phone" jdbcType="VARCHAR"/>
+        <result property="email" column="email" jdbcType="VARCHAR"/>
+        <result property="hiredate" column="hiredate" jdbcType="TIMESTAMP"/>
+        <result property="type" column="type" jdbcType="INTEGER"/>
+        <result property="img" column="img" jdbcType="VARCHAR"/>
+        <result property="available" column="available" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <!--查询单个-->
+    <select id="queryById" resultMap="SysUserMap">
+        select
+          id, username, realname, password, phone, email, hiredate, type, img, available
+        from sys_user
+        where id = #{id}
+    </select>
+
+    <!--查询指定行数据-->
+    <select id="queryAllByLimit" resultMap="SysUserMap">
+        select
+          id, username, realname, password, phone, email, hiredate, type, img, available
+        from sys_user
+        <where>
+            <if test="id != null">
+                and id = #{id}
+            </if>
+            <if test="username != null and username != ''">
+                and username = #{username}
+            </if>
+            <if test="realname != null and realname != ''">
+                and realname = #{realname}
+            </if>
+            <if test="password != null and password != ''">
+                and password = #{password}
+            </if>
+            <if test="phone != null and phone != ''">
+                and phone = #{phone}
+            </if>
+            <if test="email != null and email != ''">
+                and email = #{email}
+            </if>
+            <if test="hiredate != null">
+                and hiredate = #{hiredate}
+            </if>
+            <if test="type != null">
+                and type = #{type}
+            </if>
+            <if test="img != null and img != ''">
+                and img = #{img}
+            </if>
+            <if test="available != null">
+                and available = #{available}
+            </if>
+        </where>
+        limit #{pageable.offset}, #{pageable.pageSize}
+    </select>
+
+    <!--统计总行数-->
+    <select id="count" resultType="java.lang.Long">
+        select count(1)
+        from sys_user
+        <where>
+            <if test="id != null">
+                and id = #{id}
+            </if>
+            <if test="username != null and username != ''">
+                and username = #{username}
+            </if>
+            <if test="realname != null and realname != ''">
+                and realname = #{realname}
+            </if>
+            <if test="password != null and password != ''">
+                and password = #{password}
+            </if>
+            <if test="phone != null and phone != ''">
+                and phone = #{phone}
+            </if>
+            <if test="email != null and email != ''">
+                and email = #{email}
+            </if>
+            <if test="hiredate != null">
+                and hiredate = #{hiredate}
+            </if>
+            <if test="type != null">
+                and type = #{type}
+            </if>
+            <if test="img != null and img != ''">
+                and img = #{img}
+            </if>
+            <if test="available != null">
+                and available = #{available}
+            </if>
+        </where>
+    </select>
+
+    <select id="loadUser" resultType="com.qfedu.demo.entity.User">
+        select username, realname, password, phone, email, hiredate, type, img, available from sys_user where username=#{username};
+    </select>
+    <select id="getUserByUsername" resultType="com.qfedu.demo.entity.User">
+        select * from sys_user where username=#{username}
+    </select>
+    <select id="queryByLoginName" resultType="com.qfedu.demo.entity.User">
+        SELECT * FROM sys_user WHERE username=#{loginName}
+    </select>
+
+    <!--新增所有列-->
+    <insert id="insert" parameterType="User">
+        insert into sys_user(username, realname, password, phone, email, hiredate, type, img, available)
+        values (#{username}, #{realname}, #{password}, #{phone}, #{email}, #{hiredate}, #{type}, #{img}, #{available})
+    </insert>
+
+    <insert id="insertBatch" keyProperty="id" useGeneratedKeys="true">
+        insert into sys_user(username, realname, password, phone, email, hiredate, type, img, available)
+        values
+        <foreach collection="entities" item="entity" separator=",">
+        (#{entity.username}, #{entity.realname}, #{entity.password}, #{entity.phone}, #{entity.email}, #{entity.hiredate}, #{entity.type}, #{entity.img}, #{entity.available})
+        </foreach>
+    </insert>
+
+    <insert id="insertOrUpdateBatch" keyProperty="id" useGeneratedKeys="true">
+        insert into sys_user(username, realname, password, phone, email, hiredate, type, img, available)
+        values
+        <foreach collection="entities" item="entity" separator=",">
+            (#{entity.username}, #{entity.realname}, #{entity.password}, #{entity.phone}, #{entity.email}, #{entity.hiredate}, #{entity.type}, #{entity.img}, #{entity.available})
+        </foreach>
+        on duplicate key update
+        username = values(username),
+        realname = values(realname),
+        password = values(password),
+        phone = values(phone),
+        email = values(email),
+        hiredate = values(hiredate),
+        type = values(type),
+        img = values(img),
+        available = values(available)
+    </insert>
+
+    <!--通过主键修改数据-->
+    <update id="update">
+        update sys_user
+        <set>
+            <if test="username != null and username != ''">
+                username = #{username},
+            </if>
+            <if test="password != null and password != ''">
+                password = #{password},
+            </if>
+            <if test="phone != null and phone != ''">
+                phone = #{phone},
+            </if>
+            <if test="email != null and email != ''">
+                email = #{email},
+            </if>
+            <if test="img != null and img != ''">
+                img = #{img},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <!--通过主键删除-->
+    <delete id="deleteById">
+        delete from sys_user where id = #{id}
+    </delete>
+
+</mapper>
+

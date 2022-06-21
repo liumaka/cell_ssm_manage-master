@@ -1,0 +1,105 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qfedu.demo.mapper.OwnerMapper">
+    <resultMap id="OwnerMap" type="Owner">
+        <id column="id" property="id"/>
+        <result column="cid" property="cid"/>
+        <result column="hid" property="hid"/>
+        <result column="oname" property="oname"/>
+        <result column="picture" property="picture"/>
+        <result column="idcard" property="idcard"/>
+        <result column="telephone" property="telephone"/>
+        <result column="profession" property="profession"/>
+        <result column="sex" property="sex"/>
+        <result column="type" property="type"/>
+        <result column="remark" property="remark"/>
+        <result column="createTime" property="createTime"/>
+        <result column="birthday" property="birthday"/>
+        <association property="community" javaType="Community">
+            <id column="id" property="id"/>
+            <result column="name" property="name"/>
+        </association>
+        <association property="house" javaType="House">
+            <id column="id" property="id"/>
+            <result column="hname" property="hname"/>
+        </association>
+    </resultMap>
+    <insert id="insertOwner" parameterType="Owner">
+        insert into db_owner (cid,hid,oname,picture,idcard,telephone,profession,sex,type,remark,createTime,birthday) values (#{cid},#{hid},#{oname},#{picture},#{idcard},#{telephone},#{profession},#{sex},#{type},#{remark},#{createTime},#{birthday});
+    </insert>
+    <update id="updateOwner">
+        update db_owner
+        <trim prefix="set" suffixOverrides=",">
+            <if test="cid!=null and cid != ''">cid=#{cid},</if>
+            <if test="hid!=null and hid != ''">hid=#{hid},</if>
+            <if test="oname!=null and oname != ''">oname=#{oname},</if>
+            <if test="picture!=null and picture != ''">picture=#{picture},</if>
+            <if test="idcard!=null and idcard != ''">idcard=#{idcard},</if>
+            <if test="telephone!=null and telephone != ''">telephone=#{telephone},</if>
+            <if test="profession!=null and profession != ''">profession=#{profession},</if>
+            <if test="sex!=null and sex != ''">sex=#{sex},</if>
+            <if test="type!=null and type != ''">type=#{type},</if>
+            <if test="remark!=null and remark != ''">remark=#{remark},</if>
+            <if test="birthday!=null and birthday != ''">birthday=#{birthday},</if>
+        </trim>
+        where id = #{id}
+    </update>
+    <delete id="deleteOwnerById">
+         delete from db_owner where id = #{id}
+    </delete>
+    <delete id="deleteOwnerByIds">
+         DELETE FROM db_owner where id in (${ids})
+    </delete>
+
+    <select id="query" resultMap="OwnerMap">
+        SELECT c.name,h.hname,o.* FROM db_owner o INNER JOIN db_community c ON o.cid=c.id INNER JOIN db_house h ON
+        o.hid=h.id
+        <trim prefix="where" prefixOverrides="and||or">
+            <if test="name != null and name != ''">
+                and o.oname LIKE CONCAT(CONCAT('%',#{name},'%'))
+            </if>
+            <if test="startTime != null and startTime != ''">
+                and o.birthday &gt;= #{startTime}
+            </if>
+            <if test="endTime != null and endTime != ''">
+                and o.birthday &lt;= #{endTime}
+            </if>
+        </trim>
+    </select>
+    <select id="queryCount" resultType="java.lang.Long">
+        SELECT COUNT(*) FROM db_owner o INNER JOIN db_community c ON o.cid=c.id INNER JOIN db_house h ON
+        o.hid=h.id
+        <trim prefix="where" prefixOverrides="and||or">
+            <if test="name != null and name != ''">
+                and o.oname LIKE CONCAT(CONCAT('%',#{name},'%'))
+            </if>
+            <if test="startTime != null and startTime != ''">
+                and o.birthday &gt;= #{startTime}
+            </if>
+            <if test="endTime != null and endTime != ''">
+                and o.birthday &lt;= #{endTime}
+            </if>
+        </trim>
+    </select>
+    <select id="queryCommunityInfo" resultType="com.qfedu.demo.entity.Community">
+        SELECT id,NAME FROM db_community
+        <where>
+            state=1
+            <if test="cid != null and cid != ''">
+                id=#{cid}
+            </if>
+        </where>
+    </select>
+    <select id="queryHouseInfo" resultType="House">
+        SELECT id,hname FROM db_house
+        <where>
+            <if test="cid != null and cid != ''">
+                id=#{hid}
+            </if>
+        </where>
+    </select>
+    <select id="queryById" resultType="com.qfedu.demo.entity.Owner">
+        select * from db_owner where id=#{id}
+    </select>
+</mapper>

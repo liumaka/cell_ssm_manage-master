@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context" xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context https://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+    <context:component-scan base-package="com.qfedu.demo" use-default-filters="true">
+        <context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+    </context:component-scan>
+
+    <context:property-placeholder location="classpath:db.properties"/>
+
+    <bean class="com.alibaba.druid.pool.DruidDataSource" id="dataSource">
+        <property name="username" value="${db.username}"/>
+        <property name="password" value="${db.password}"/>
+        <property name="url" value="${db.url}"/>
+        <property name="driverClassName" value="${db.driver}"/>
+    </bean>
+
+    <!--
+    MyBatis 配置：
+    1. 配置 SqlSessionFactoryBean
+    2. 配置 Mapper 扫描
+
+    -->
+
+    <bean class="org.mybatis.spring.SqlSessionFactoryBean" id="sqlSessionFactoryBean">
+        <property name="dataSource" ref="dataSource"/>
+        <property name="typeAliasesPackage" value="com.qfedu.demo.entity"/>
+        <property name="mapperLocations">
+            <array>
+                <value>classpath*:com/qfedu/demo/mapper/*.xml</value>
+            </array>
+        </property>
+        <!--分页插件-->
+        <property name="plugins">
+            <array>
+                <bean class="com.github.pagehelper.PageInterceptor">
+                    <property name="properties" value=""/>
+                </bean>
+            </array>
+        </property>
+    </bean>
+
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer" id="mapperScannerConfigurer">
+        <property name="basePackage" value="com.qfedu.demo.mapper"/>
+        <property name="sqlSessionFactoryBeanName" value="sqlSessionFactoryBean"/>
+    </bean>
+
+    <bean class="org.springframework.jdbc.datasource.DataSourceTransactionManager" id="transactionManager">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+
+    <tx:annotation-driven/>
+<!--    <bean class="org.apache.shiro.web.mgt.DefaultWebSecurityManager" id="securityManager">-->
+<!--        <property name="cacheManager" ref="cacheManager"/>-->
+<!--        <property name="realm" ref="myRealm3"/>-->
+<!--        &lt;!&ndash;        <property name="authenticator">-->
+<!--                    <bean class="org.apache.shiro.authc.pam.ModularRealmAuthenticator">-->
+<!--                        <property name="authenticationStrategy">-->
+<!--                            <bean class="org.apache.shiro.authc.pam.AllSuccessfulStrategy">-->
+<!--                            </bean>-->
+<!--                        </property>-->
+<!--                        <property name="realms">-->
+<!--                            <list>-->
+<!--                                <ref bean="myRealm"/>-->
+<!--                                <ref bean="myRealm2"/>-->
+<!--                            </list>-->
+<!--                        </property>-->
+<!--                    </bean>-->
+<!--                </property>&ndash;&gt;-->
+<!--    </bean>-->
+<!--    &lt;!&ndash;-->
+<!--  配置 Shiro 过滤器的 Bean-->
+<!--  注意注意：这个 bean 的 id 必须和 web.xml 中配置的过滤器的名字相同-->
+<!--  &ndash;&gt;-->
+<!--    <bean class="org.apache.shiro.spring.web.ShiroFilterFactoryBean" id="shiroFilter">-->
+<!--        <property name="securityManager" ref="securityManager"/>-->
+<!--        &lt;!&ndash;-->
+<!--        配置登录的 URL-->
+<!--        &ndash;&gt;-->
+<!--        <property name="loginUrl" value="/login"/>-->
+<!--        &lt;!&ndash;配置登录成功的 URL&ndash;&gt;-->
+<!--        <property name="successUrl" value="/index"/>-->
+
+<!--        &lt;!&ndash;未获授权时展示的地址&ndash;&gt;-->
+<!--        <property name="unauthorizedUrl" value="/unauthorized"/>-->
+
+<!--        &lt;!&ndash;-->
+<!--        这个主要是配置拦截规则-->
+<!--        &ndash;&gt;-->
+<!--        <property name="filterChainDefinitions">-->
+<!--            <value>-->
+<!--                /=anon-->
+<!--                /logout=logout-->
+<!--                /index=user-->
+<!--                /**=authc-->
+<!--            </value>-->
+<!--        </property>-->
+<!--    </bean>-->
+
+</beans>

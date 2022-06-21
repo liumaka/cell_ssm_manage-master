@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qfedu.demo.mapper.CommunityMapper">
+<!--        <resultMap id="CommunityMap" type="Community">-->
+<!--            <constructor>-->
+<!--                <idArg column="id" name="id" />-->
+<!--                <arg column="communityNum" name="communityNum"/>-->
+<!--                <arg column="name" name="name" />-->
+<!--                <arg column="address" name="address" />-->
+<!--                <arg column="communityArea" name="communityArea" />-->
+<!--                <arg column="buildingNum" name="buildingNum" />-->
+<!--                <arg column="roomNum" name="roomNum" />-->
+<!--                <arg column="greeningRate" name="greeningRate" />-->
+<!--                <arg column="developerName" name="developerName" />-->
+<!--                <arg column="propertyName" name="propertyName" />-->
+<!--                <arg column="hiredate" name="hiredate" />-->
+<!--                <arg column="state" name="state" />-->
+<!--            </constructor>-->
+<!--        </resultMap>-->
+    <!--查询单个-->
+    <select id="queryById" resultType="Community" parameterType="Integer">
+        select
+          id,communityNum,name, address, communityArea, developerName,propertyName,greeningRate, buildingNum, roomNum,state,hiredate,img
+        from db_community
+        where id = #{id}
+    </select>
+    <select id="queryByName" resultType="Community" parameterType="String">
+        select
+        id,communityNum,name, address, communityArea, developerName,propertyName,greeningRate, buildingNum,
+        roomNum,state,hiredate,img
+        from db_community
+        <trim prefix="where" prefixOverrides="and||or">
+            <if test="name != null and name != ''">
+                and name LIKE CONCAT(CONCAT('%',#{name},'%'))
+            </if>
+            <if test="startTime != null and startTime != ''">
+                and hiredate &gt;= #{startTime}
+            </if>
+            <if test="endTime != null and endTime != ''">
+                and hiredate &lt;= #{endTime}
+            </if>
+        </trim>
+    </select>
+    <!--    <sql id="queryCommunityWhere">
+            <where>
+                <if test="name != null and name != ''">
+                    name LIKE CONCAT(CONCAT('%',#{name},'%'))
+                </if>
+                <if test="startDate">
+                    <![CDATA[
+                and day>=#{startDate}
+                ]]>
+                </if>
+                <if test="endDate">
+                    <![CDATA[
+                and day<=#{endDate}
+                ]]>
+                </if>
+            </where>
+        </sql>-->
+
+    <select id="queryByNameCount" resultType="Long" parameterType="String">
+        select
+        count(*)
+        from db_community
+        <trim prefix="where" prefixOverrides="and||or">
+            <if test="name != null and name != ''">
+                and name LIKE CONCAT(CONCAT('%',#{name},'%'))
+            </if>
+            <if test="startTime != null and startTime != ''">
+                and hiredate &gt;= #{startTime}
+            </if>
+            <if test="endTime != null and endTime != ''">
+                and hiredate &lt;= #{endTime}
+            </if>
+        </trim>
+    </select>
+
+    <update id="updateCommunity">
+        update db_community
+        <trim prefix="set" suffixOverrides=",">
+            <if test="communityNum!=null">communityNum=#{communityNum},</if>
+            <if test="name!=null">name=#{name},</if>
+            <if test="address!=null">address=#{address},</if>
+            <if test="communityArea!=null">communityArea=#{communityArea},</if>
+            <if test="developerName!=null">developerName=#{developerName},</if>
+            <if test="propertyName!=null">propertyName=#{propertyName},</if>
+            <if test="greeningRate!=null">greeningRate=#{greeningRate},</if>
+            <if test="buildingNum!=null">buildingNum=#{buildingNum},</if>
+            <if test="roomNum!=null">roomNum=#{roomNum},</if>
+            <if test="state!=null">state=#{state},</if>
+            <if test="img!=null">img=#{img},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <!--查询指定行数据-->
+    <select id="queryAllByLimit" resultType="Community">
+        select
+          id, communityNum, name, address, communityArea, buildingNum, roomNum,greeningRate, img,  developerName, propertyName, hiredate,state
+        from db_community
+    </select>
+
+    <!--新增所有列-->
+    <insert id="insert">
+        insert into db_community(communityNum,name, address, communityArea, developerName,propertyName,greeningRate, buildingNum, roomNum,state,img,hiredate)
+        values (#{communityNum},#{name}, #{address}, #{communityArea}, #{developerName}, #{propertyName}, #{greeningRate}, #{buildingNum}, #{roomNum}, #{state},#{img},#{hiredate})
+    </insert>
+    <select id="selectCount" resultType="Long">
+        SELECT COUNT(*) FROM db_community
+    </select>
+
+    <!--通过主键删除-->
+    <delete id="deleteById">
+        delete from db_community where id = #{id}
+    </delete>
+    <delete id="deleteCommunityByIds">
+        DELETE FROM db_community where id in (${ids})
+    </delete>
+</mapper>
+
